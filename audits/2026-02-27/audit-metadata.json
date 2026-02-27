@@ -1,0 +1,83 @@
+{
+  "audit_date": "2026-02-27",
+  "trigger": "workflow_dispatch",
+  "genres_run": ["security", "infrastructure", "team"],
+  "genres_skipped": [
+    {
+      "genre": "hosting/aws",
+      "reason": "No AWS IaC detected — no *.tf files with aws_ resources, no AWSTemplateFormatVersion in JSON/YAML, no serverless.yml, no @aws-cdk constructs"
+    },
+    {
+      "genre": "hosting/azure",
+      "reason": "No Azure IaC detected — no *.tf files with azurerm_ resources, no *.bicep files, no ARM templates, no azure-pipelines.yml"
+    }
+  ],
+  "templates_filled": 25,
+  "templates_skipped": [
+    { "template": "security/database", "reason": "No database code; jQuery is a client-side DOM library with no database interactions" },
+    { "template": "security/mobile", "reason": "No mobile application code detected; jQuery is a browser library" },
+    { "template": "security/voice", "reason": "No voice/IVR code detected" },
+    { "template": "security/ai", "reason": "No AI/ML code detected" },
+    { "template": "security/authentication", "reason": "No authentication system; jQuery is a DOM manipulation library with no auth logic" },
+    { "template": "infrastructure/database", "reason": "No database; jQuery is a client-side library" },
+    { "template": "infrastructure/mobile", "reason": "No mobile application code detected" },
+    { "template": "infrastructure/voice", "reason": "No voice/IVR code detected" },
+    { "template": "infrastructure/ai", "reason": "No AI/ML code detected" }
+  ],
+  "total_files_analyzed": 156,
+  "duration_estimate": "N/A",
+  "repository": {
+    "name": "jquery",
+    "version": "2.2.5-pre",
+    "description": "jQuery JavaScript library — client-side DOM manipulation",
+    "primary_language": "JavaScript",
+    "build_system": "Grunt",
+    "test_framework": "QUnit"
+  },
+  "health_scores": {
+    "overall": 57,
+    "security": 65,
+    "infrastructure": 42,
+    "team": 65,
+    "hosting": null
+  },
+  "maturity_levels": {
+    "security": "Level 3 — Adequate",
+    "infrastructure": "Level 2 — Poor / Requires Modernization",
+    "team": "Level 3 — Adequate",
+    "hosting": "N/A — Skipped"
+  },
+  "key_findings_counts": {
+    "security": {
+      "critical": 0,
+      "high": 4,
+      "medium": 5,
+      "low": 3,
+      "total": 12
+    },
+    "infrastructure": {
+      "dimensions_at_level_1": 2,
+      "dimensions_at_level_2": 6,
+      "dimensions_at_level_3": 2,
+      "dimensions_at_level_4_or_5": 0,
+      "average_maturity": 1.9
+    },
+    "team": {
+      "active_human_developers": 1,
+      "annual_churn_percent": 0,
+      "bus_factor": 1
+    }
+  },
+  "config_used": {
+    "exclude_paths": ["node_modules", "vendor", "dist", "build", ".git", "__pycache__"],
+    "max_files_per_template": 30,
+    "max_lines_per_file": 500,
+    "assessment_window": "2 months",
+    "health_score_weights": {
+      "security": 35,
+      "infrastructure": 30,
+      "team": 20,
+      "hosting": 15
+    }
+  }
+}
