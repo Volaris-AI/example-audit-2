@@ -1,0 +1,70 @@
+name: Run Codebase Audit
+
+on:
+  workflow_dispatch:
+    inputs:
+      genres:
+        description: 'Genres to audit (comma-separated, or "auto" for auto-detect)'
+        required: false
+        default: 'auto'
+      skip-templates:
+        description: 'Templates to skip (comma-separated, e.g., "mobile,voice")'
+        required: false
+  schedule:
+    - cron: '0 6 1 * *' # Monthly on the 1st at 6am UTC
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  trigger-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create audit issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ secrets.AUDIT_PAT }}
+        run: |
+          AUDIT_DATE=$(date +%Y-%m-%d)
+          GENRES="${{ inputs.genres || 'auto' }}"
+          SKIP="${{ inputs.skip-templates || 'none' }}"
+          TRIGGER="${{ github.event_name }}"
+
+          ISSUE_URL=$(gh issue create \
+            --repo ${{ github.repository }} \
+            --title "Codebase Audit - ${AUDIT_DATE}" \
+            --body "## Automated Codebase Audit
+
+          **Date**: ${AUDIT_DATE}
+          **Trigger**: ${TRIGGER}
+          **Genres**: ${GENRES}
+          **Skip**: ${SKIP}
+
+          Perform a comprehensive codebase audit using the templates
+          in \`.github/audits/\`. Fill out relevant templates and produce
+          an executive overview.
+
+          When complete, create a draft pull request with all filled
+          templates in \`audits/${AUDIT_DATE}/\`.")
+
+          echo "url=$ISSUE_URL" >> $GITHUB_OUTPUT
+          ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
+          echo "number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          echo "Created issue #$ISSUE_NUMBER: $ISSUE_URL"
+
+      - name: Assign to Copilot orchestrator
+        env:
+          GH_TOKEN: ${{ secrets.AUDIT_PAT }}
+        run: |
+          gh api --method POST \
+            /repos/${{ github.repository }}/issues/${{ steps.issue.outputs.number }}/assignees \
+            --input - <<< '{
+              "assignees": ["copilot-swe-agent[bot]"],
+              "agent_assignment": {
+                "base_branch": "main",
+                "custom_agent": "audit-orchestrator"
+              }
+            }'
+          echo "Assigned issue #${{ steps.issue.outputs.number }} to Copilot audit-orchestrator agent"

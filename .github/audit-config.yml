@@ -1,0 +1,122 @@
+# Audit Configuration
+# Customize which audits run and how they behave.
+
+genres:
+  security:
+    enabled: true
+    skip: []              # Template names to skip (without .md)
+    force-include: []     # Always include these even if auto-detect skips
+  infrastructure:
+    enabled: true
+    skip: []
+    force-include: []
+  team:
+    enabled: auto         # "auto" = only if meaningful git history exists
+    skip: []
+    force-include: []
+    assessment-window: "2 months"
+  hosting:
+    enabled: auto         # "auto" = only if cloud IaC detected
+    skip: []
+    force-include: []
+
+scan:
+  exclude-paths:          # Directories to skip during analysis
+    - node_modules
+    - vendor
+    - dist
+    - build
+    - .git
+    - __pycache__
+  max-files-per-template: 30   # Max files to analyze per template
+  max-lines-per-file: 500     # Truncate large files
+
+review:
+  auto-review: true       # Automatically run reviewer after genre audits
+  health-score-weights:   # Weights for overall health score
+    security: 35
+    infrastructure: 30
+    team: 20
+    hosting: 15
+  
+  # Rubric thresholds for scoring (normalized metrics)
+  # These define the boundaries between score levels (1-5)
+  rubric-thresholds:
+    security:
+      # Findings per 1,000 LOC
+      level-5:  # Score: 95
+        critical-max: 0.0
+        high-max: 0.1
+        total-max: 0.5
+      level-4:  # Score: 82
+        critical-max: 0.0
+        high-max: 0.3
+        total-max: 1.5
+      level-3:  # Score: 65
+        critical-max: 0.1
+        high-max: 0.8
+        total-max: 3.0
+      level-2:  # Score: 42
+        critical-max: 0.3
+        high-max: 2.0
+        total-max: 6.0
+      # Below level-2 thresholds = Level 1 (Score: 15)
+    
+    infrastructure:
+      # Average maturity across dimensions
+      level-5:  # Score: 95
+        avg-min: 4.5
+        dimension-min: 4
+      level-4:  # Score: 82
+        avg-min: 3.8
+        dimension-min: 3
+      level-3:  # Score: 65
+        avg-min: 2.8
+        dimension-min: 2
+      level-2:  # Score: 42
+        avg-min: 2.0
+        dimension-min: 1
+      # Below level-2 thresholds = Level 1 (Score: 15)
+    
+    team:
+      # Team Stability Maturity (1-5) and churn-based scoring
+      level-5:  # Score: 95
+        stability-min: 4.5
+        annual-churn-max: 10
+        avg-tenure-min: 18  # months
+      level-4:  # Score: 82
+        stability-min: 3.5
+        annual-churn-max: 15
+        avg-tenure-min: 12  # months
+      level-3:  # Score: 65
+        stability-min: 2.5
+        annual-churn-max: 25
+        avg-tenure-min: 8  # months
+      level-2:  # Score: 42
+        stability-min: 1.5
+        annual-churn-max: 35
+        avg-tenure-min: 5  # months
+      # Below level-2 thresholds = Level 1 (Score: 15)
+    
+    hosting:
+      # Findings per 10 IaC resources
+      level-5:  # Score: 95
+        critical-max: 0.0
+        high-max: 0.5
+        total-max: 2.0
+      level-4:  # Score: 82
+        critical-max: 0.0
+        high-max: 1.5
+        total-max: 4.0
+      level-3:  # Score: 65
+        critical-max: 0.5
+        high-max: 3.0
+        total-max: 8.0
+      level-2:  # Score: 42
+        critical-max: 1.5
+        high-max: 6.0
+        total-max: 15.0
+      # Below level-2 thresholds = Level 1 (Score: 15)
+
+output:
+  directory: "audits"     # Output directory (relative to repo root)
